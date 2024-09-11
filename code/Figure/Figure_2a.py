@@ -42,5 +42,5 @@ ax.spines['right'].set_visible(False)
 
 # Display the figure
 plt.tight_layout()
-plt.savefig('fig-1a.pdf')
+plt.savefig('fig-2a.pdf')
 plt.show()
