@@ -1,1 +1,79 @@
+Pseudocode of ProG-SOL
+
+# using ProtT5-XL-Uniref50 model to get sequence embedding as pre-trained node features
+Function get_pretrained_node_feature(sequence)
+    pretrained_node_feature = Embedding_Extraction(sequence)
+    return pretrained_node_feature
+End function
+
+# using PSI-BLAST to get PSSM matrix as evolutionary node features
+Function get_evol_node_feature(sequence)
+    evol_node_feature = Blast_Uniref90(sequence)
+    return evol_node_feature
+End function
+
+# using SPOT-Contact-LM to get contact probabilities matrix as edge features
+Function get_contact_probs(sequence)
+    contact_probs = Contact_Prediction (sequence)
+    return contact_probs
+End function
+
+# generate graph architecture
+Function graph_generation(pretrained_node_features, evol_node_features, contact_probs, prob_cutoff)
+    pair_list = []
+    for i from 1 to length(contact_probs):
+		for j from 1 to length(contact_probs):
+        	if contact_probs[i, j]>prob_cutoff then
+            	pair_list.append(i)
+    End for
+    graph = build_graph(pair_list)
+graph.node_feat1 = pretrained_node_features[graph.nodes()]
+graph.node_feat2 = evol_node_features[graph.nodes()]
+graph.edge_feat = contact_probs[graph.edges()]
+    return graph
+End function
+
+# SolubilityClassificationModel
+Function ClassificationGraphConvolution(n_conv1, n_conv1, n_fcn, graph)
+    node_features_list1 = []
+    for i = 1 to n_conv1:
+h1 = SAGEConv(graph, graph.node_feat1, edge_feat)
+        h1 = relu(h1)
+h1 = normalization(h1)
+        node_features_list1.append(h1)
+node_features1 = Pooling(concatenate(node_features_list1))
+    End for
+	
+	node_features_list2 = []
+    for i = 1 to n_conv2:
+h2 = SAGEConv(graph, graph.node_feat2, edge_feat)
+        h2 = relu(h2)
+h2 = normalization(h2)
+        node_features_list2.append(h2)
+	node_features2 = Pooling(concatenate(node_features_list2))
+    End for
+
+    embedding = concatenate(node_features1, node_features2)
+    for i = 1 to n_fcn:
+        embedding = Linear(embedding)
+        embedding = relu(embedding)
+embedding = normalization(embedding)
+    End for
+    probability = classification_linear(embedding)
+    return probability
+End function
+
+
+#Training
+dataset = Dataset(graphs, labels)
+loss_function = cross_entropy
+optimizer = Adam
+for epoch = 1 to num_epochs:
+    for batch in dataset:
+        inputs, targets = batch
+        predictions = model(inputs)
+        loss = loss_function(predictions, targets)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
