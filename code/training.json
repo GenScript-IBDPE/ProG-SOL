@@ -1,0 +1,14 @@
+{
+    "n_conv_pretrained": "3",
+    "h_dim_pretrained": "128",
+    "n_conv_evol": "2",
+    "h_dim_evol": "32",
+    "n_fcn": "2",
+    "fcn_dim": "128",
+    "agg_type": "mean",
+    "dropout": "0.3",
+    "lr": "0.01",
+    "eps": "1e-08",
+    "betas": "(0.9, 0.999)",
+    "weight_decay": "0.001"
+}
